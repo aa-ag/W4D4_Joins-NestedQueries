@@ -15,11 +15,12 @@ FROM payment
 JOIN customer ON payment.customer_id = customer.customer_id
 WHERE amount > 6.99
 ORDER BY amount ASC;
+-- This table shows "all payments abotve $6.99 with the Customer's Full Name"
 
 SELECT COUNT(amount)
 FROM payment
 WHERE amount > 6.99;
--- there are 1431 payments higher than $6.99
+-- There are 1431 such payments
 
 
 
@@ -38,21 +39,41 @@ WHERE customer.customer_id IN (
 
 
 -- 4. List all customers that live in Nepal (use the city table)
-SELECT country.country_id, city.city_id, address.city_id, customer.first_name, customer.last_name
-FROM country
-JOIN city ON city.country_id = country.country_id
-JOIN address ON address.city_id = city.city_id
-JOIN customer ON address.city_id = address.city_id
+-- SELECT country.country_id, city.city_id, address.city_id, customer.first_name, customer.last_name
+-- FROM country
+-- JOIN city ON city.country_id = country.country_id
+-- JOIN address ON address.city_id = city.city_id
+-- JOIN customer ON address.city_id = address.city_id
+-- WHERE country = 'Nepal';
+SELECT first_name, last_name, country
+FROM customer
+INNER JOIN address
+ON customer.address_id = address.address_id
+INNER JOIN city
+ON address.city_id = city.city_id
+INNER JOIN country
+ON city.country_id = country.country_id
 WHERE country = 'Nepal';
 
 
 
 -- 5. Which staff member had the most transactions?
-SELECT COUNT(rental_id)
-FROM rental
-JOIN staff ON staff.staff_id = rental.staff_id
-GROUP BY rental.staff_id;
--- Staff id # 1 had 36 more transactions. Total: 8040.
+-- SELECT COUNT(rental_id)
+-- FROM rental
+-- JOIN staff ON staff.staff_id = rental.staff_id
+-- GROUP BY rental.staff_id
+-- ORDER BY rental.staff_id
+-- LIMIT 1
+-- Staff id #1 had 36 more transactions. Total: 8040.
+SELECT first_name, last_name, COUNT(payment.staff_id) AS Highest_Selling
+FROM staff  
+INNER JOIN payment
+ON staff.staff_id = payment.staff_id
+GROUP BY staff.staff_id
+ORDER BY COUNT(payment.staff_id) DESC
+LIMIT 1;
+-- Jon Stephens has the more transactions
+
 
 
 -- 6. How many movies of each rating are there?
@@ -61,6 +82,7 @@ FROM film
 GROUP BY rating
 ORDER BY count DESC;
 -- 223 PG-13, 210 NC-17, 195 R, 194 PG and 178 G-rated movies.
+
 
 
 -- 7.Show all customers who have made a single payment above $6.99 (Use Subqueries)
@@ -73,6 +95,7 @@ WHERE customer.customer_id IN (
 	HAVING SUM(payment.amount) > 6.99
 );
 -- There are 599 customers in this group.
+
 
 
 -- 8. How many free rentals did our stores give away?
